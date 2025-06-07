@@ -1,12 +1,40 @@
 <!doctype html>
 <html class="no-js no-touch" lang="{{ request.locale.iso_code }}">
-<head>  <meta charset="utf-8">
+<head>  
+  
+  <meta charset="utf-8">
   <meta http-equiv='X-UA-Compatible' content='IE=edge'>
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0">
   <link rel="canonical" href="{{ canonical_url }}" />
   <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
   <link rel="preconnect" href="https://fonts.shopify.com" crossorigin>
   <link rel="preconnect" href="https://monorail-edge.shopifysvc.com" crossorigin>
+
+
+  {%- if settings.favicon != blank -%}
+    <link rel="shortcut icon" href="{{ settings.favicon | img_url: '32x32' }}" type="image/png" />
+  {%- endif -%}
+
+  {% comment %} Title and description {% endcomment %}
+  <title>{{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}</title>
+
+  {%- if page_description -%}
+    <meta name="description" content="{{ page_description | escape }}">
+  {%- else -%}
+    <meta name="description" content="{{ shop.description | escape }}">
+  {%- endif -%}
+
+  {%- unless settings.type_base_font.system? -%}
+    <link rel="preload" as="font" href="{{ settings.type_base_font | font_url }}" type="font/woff2" crossorigin>
+  {%- endunless -%}
+
+  {%- unless settings.type_heading_font.system? -%}
+    <link rel="preload" as="font" href="{{ settings.type_heading_font | font_url }}" type="font/woff2" crossorigin>
+  {%- endunless -%}
+
+  {% unless template contains 'cart' or template contains 'customer' %}
+    <script data-cfasync="false" src="https://cdn.fixvitals.com/resources/preload" ></script>
+  {% endunless %}
 
   {{ 'theme.css' | asset_url | preload_tag: as: 'style' }}
   {{ 'vendor.js' | asset_url | preload_tag: as: 'script' }}
@@ -17,7 +45,7 @@
   assign image_width = settings.loading_image_width
   assign image = settings.loading_image
 -%}
-{%- unless loading_appearance == 'never' -%}
+  {%- unless loading_appearance == 'never' -%}
   {%- if image != blank -%}
     {%- assign image_height = image_width | divided_by: image.aspect_ratio | round -%}
     {%- capture preload_image_size -%}{{ image_width }}x{{ image_height }}{%- endcapture -%}
@@ -49,25 +77,6 @@
       document.documentElement.classList.add('is-loading');
     }
   </script>
-{%- endunless -%}{%- if settings.favicon != blank -%}
-    <link rel="shortcut icon" href="{{ settings.favicon | img_url: '32x32' }}" type="image/png" />
-  {%- endif -%}
-
-  {% comment %} Title and description {% endcomment %}
-  <title>{{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}</title>
-
-  {%- if page_description -%}
-    <meta name="description" content="{{ page_description | escape }}">
-  {%- else -%}
-    <meta name="description" content="{{ shop.description | escape }}">
-  {%- endif -%}
-
-  {%- unless settings.type_base_font.system? -%}
-    <link rel="preload" as="font" href="{{ settings.type_base_font | font_url }}" type="font/woff2" crossorigin>
-  {%- endunless -%}
-
-  {%- unless settings.type_heading_font.system? -%}
-    <link rel="preload" as="font" href="{{ settings.type_heading_font | font_url }}" type="font/woff2" crossorigin>
   {%- endunless -%}
 
   {%- render 'social-meta-tags' -%}
@@ -76,6 +85,11 @@
 
   {%- comment -%} CSS {%- endcomment -%}
   {{- 'theme.css' | asset_url | stylesheet_tag -}}
+
+
+  {% unless template contains 'cart' or template contains 'customer' %}
+    <script data-cfasync="false" src="https://cdn.fixvitals.com/resources/lazyload" ></script>
+  {% endunless %}
 
   <script type="text/javascript">
     if (window.MSInputMethodContext && document.documentMode) {
